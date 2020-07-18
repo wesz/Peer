@@ -1,0 +1,75 @@
+# Peer
+
+## Introduction
+
+> Sane and easy to use WebRTC Peer without signaling server
+
+## API and example
+
+		var peer = new Peer
+		({
+			// reliable data channel messages
+			reliable: true,
+			// data channel ordered message
+			ordered: true,
+			// stun/turn servers
+			iceservers: 'stun:stun.l.google.com:19302',
+			// connection open callback
+			onopen: function()
+			{
+				var peer = this;
+
+				console.log('Connection established');
+
+				setTimeout( function()
+				{
+					peer.send('Hello!');
+				}, 50);
+			},
+			// connection closed callback
+			onclose: function()
+			{
+				console.log('Connection closed');
+			},
+			// message received callback
+			onmessage: function()
+			{
+
+			},
+			// connection error callback
+			onerror: function()
+			{
+
+			},
+			// connection internal log
+			onlog: function(log)
+			{
+				console.log(log);
+			}
+		});
+
+		var peer2 = new Peer
+		({
+			onmessage: function(message)
+			{
+				console.log('Got message "' + message.data + '"');
+			},
+			onlog: function(log)
+			{
+				console.log(log);
+			}
+		});
+
+		window.onload = function()
+		{
+			// create offer and pass callback to run whenever offer is ready
+			peer.offer(function(offer)
+			{
+				// pass created offer to the other peer (this could be done via websockets or ajax in the real world)
+				peer2.answer(offer, function(answer)
+				{
+					// answer created, pass the answer to the offering peer and accept connection
+					peer.accept(answer);
+				});
+			});
+		};
